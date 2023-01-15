@@ -1,0 +1,57 @@
+#!/usr/bin/python3
+from aux_functions import *
+import numpy as np
+
+'''
+  Generic class for yolo annotation data
+'''
+class YoloBox:
+  '''
+    class_id  : index of class in obj.data
+        bbox  : bounding box [centerx, centery, width, height]. assumes uniform dataset
+    img_file  : identifier for mapping bounding box to source image
+    confidence: optional confidence value from inference
+  '''
+  def __init__(self,class_id, bbox, img_filename, confidence = None):
+    self.class_id = class_id
+    self.bbox = bbox
+    self.img_filename = img_filename
+    self.confidence = confidence
+    self.parent_track = None
+    self.next = None
+    self.prev = None
+
+
+  def get_corner_coords(self):
+    '''
+    Helper for translating yolo bbox to [(minx, miny), (maxx, maxy)]
+    Returns a list of points
+    '''
+    center_x, center_y, w, h = self.bbox
+    minx,miny,maxx,maxy = center_x - w/2, center_y - h/2, center_x + w/2, center_y + h/2
+    return [(minx, miny), (maxx, maxy)]
+  
+  def get_center_coord(self):
+    '''
+    Accessor for center of bounding box
+      returns (x, y)
+    '''
+    return (self.bbox[0],self.bbox[1])
+
+  
+  def conv_yolox_bbox(bbox):
+    '''
+    Convert yolox bounding box to yolo format
+    yolox :  [minx, miny, maxx, maxy]
+    yolo  :  [centerx, centery, width, height]
+    Returns a yolo bounding box
+    '''
+    pt1,pt2 = bbox[:2],bbox[2:]
+    # find midpoint via polar coordinates
+    r = MathFxns.euclidean_dist(pt1,pt2)
+    theta = np.arctan2(pt2[0] - pt1[0], pt2[1] - pt1[1])
+    mpx,mpy = r/2 * np.sin(theta) + pt1[0], r/2 * np.cos(theta) + pt1[1]
+    
+    # calculate width and height
+    w,h = abs(pt1[0] - pt2[0]),abs(pt1[1] - pt2[1])
+    return [mpx, mpy, w, h]
