@@ -1,8 +1,6 @@
 import collections
-from PIL import Image, ImageDraw
-from aux_functions import *
 
-from Dataloader import Dataloader
+from aux_functions import *
 from YoloBox import YoloBox
 from ObjectTrack import ObjectTrack
 from categories import CATEGORIES
@@ -19,7 +17,7 @@ class ObjectTrackManager:
   constants = { "avg_tolerance"   : 10, 
               "track_lifespan"  : 4,
               "default_avg_dist": 10,
-              "radial_exclusion": 180,
+              "radial_exclusion": 100,
             }
   display_constants = {"trail_len" : 0}
   def __init__(self,

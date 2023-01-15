@@ -12,7 +12,7 @@ import sys
 import os
 import json
 
-CUTOFF = 0
+CUTOFF = 45
 # loader
 LOAD_CUTOFF = 1
 
@@ -128,7 +128,7 @@ def export_tracks(otm,filehandle=None):
 
 
 #track builder
-def build_annotations(afl,sys_path,outfile=None):
+def build_annotations(infile,sys_path,outfile=None):
   '''
   BUILDER
   Builds a list of tracks 
@@ -136,7 +136,7 @@ def build_annotations(afl,sys_path,outfile=None):
   sys.argv[2]: image sys_path
   sys.argv[3]: output file
   '''
-  f,s = file_list_loader(sys.argv[1],sys.argv[2])
+  f,s = file_list_loader(infile, sys_path)
   ll = load_layers(f,s)
   o = build_tracks(f,s,ll)
   freeze_tracks(o)
@@ -187,7 +187,17 @@ def main():
   '''
   CLI but not with argparse
   '''
-  print(sys.argv)
+  build_help = "build [input_file] [path_to_annotations]"
+  reload_help = "reload [input_loco_file] [optional_output]"
+  draw_help = "draw [input_loco_file] [path_to_images]"
+  h = [build_help,reload_help,draw_help]
+  # print(sys.argv)
+  if len(sys.argv) < 3:
+    print(f"usage:")
+    for i in h:
+      print(f"\t{i}")
+    exit(0)
+  
   command = sys.argv[1]
   outfile = None
   
@@ -199,6 +209,7 @@ def main():
         reload_annotations(sys.argv[2])
       
     case 'build': # build tracks from scratch
+    
       if len(sys.argv) == 5:
         build_annotations(sys.argv[2],sys.argv[3],sys.argv[4])
       else:
