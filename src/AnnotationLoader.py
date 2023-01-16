@@ -12,13 +12,17 @@ class AnnotationLoader:
     Load filenames from a file for further preprocessing
     Returns a list of filenames(strings)
     '''
-    f = open(f"{sys_path}/{valid_file}","r")
+    if not path.exists(valid_file):
+      print(f"{valid_file} does not exist!")
+      return None
+    
+    f = open(f"{valid_file}","r")
     s = f.readlines()
     f.close()
     s = [i.rstrip("\n") for i in s]
     return s
   
-  def load_annotations_from_json_file(valid_file, sys_path = "."):
+  def load_annotations_from_json_file(valid_file):
     '''
     Placeholder to load annotations from a valid json file
     Returns a python dictionary object
@@ -43,25 +47,29 @@ class AnnotationLoader:
   YOLO_LEN = 5  # class center_x center_y width height
   
 
-  def load_annotations_from_text_file(valid_file,sys_path="."):
+  def load_annotations_from_text_file(valid_file):
     '''
       Read and split lines from a valid txt annotation file.
       Returns a list of strings
     '''
-    f = open(f"{sys_path}/{valid_file}","r")
+    if not path.exists(valid_file):
+      print(f"{valid_file} does not exist!")
+    
+    f = open(f"{valid_file}","r")
     s = f.readlines()
     f.close()
     s = [i.rstrip("\n") for i in s]    
     return s
   
-  def load_yolofmt_layer(valid_file,sys_path="."):
+  def load_yolofmt_layer(valid_file):
     '''
     Load annotations from yolo/x formatted files
     Returns a (possibly empty) list of yoloboxes
     '''
+    # expects *.jpg or similar
     valid_filename = valid_file[:-3] + "txt"
 
-    annotations = AnnotationLoader.load_annotations_from_text_file(valid_filename, sys_path)
+    annotations = AnnotationLoader.load_annotations_from_text_file(valid_filename)
     if len(annotations) == 0:
       print(f"EMPTY FILE: {valid_filename}")
       return []
@@ -72,7 +80,7 @@ class AnnotationLoader:
     elif len(annotations[0].split()) == AnnotationLoader.YOLO_LEN:
       return AnnotationLoader.parse_yolo_annotations(annotations, valid_filename)
     else:
-      print(f"SKIPPING {sys_path}{valid_filename}: ANNOTATIONS FORMAT NOT RECOGNIZED")
+      print(f"SKIPPING {valid_filename}: ANNOTATIONS FORMAT NOT RECOGNIZED")
       return []
 
   def parse_yolox_annotations(s, valid_file):
