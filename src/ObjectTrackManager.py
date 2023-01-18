@@ -15,9 +15,9 @@ IDENTIFIERS = not LABELS
 BOXES = IDENTIFIERS
 class ObjectTrackManager:
   constants = { "avg_tolerance"   : 10, 
-              "track_lifespan"  : 4,
+              "track_lifespan"  : 3,
               "default_avg_dist": 10,
-              "radial_exclusion": 100,
+              "radial_exclusion": 150,
             }
   display_constants = {"trail_len" : 0}
   def __init__(self,
@@ -153,7 +153,7 @@ class ObjectTrackManager:
     Draws YoloBox information on the corresponding images
     '''
     for layer_idx in range(len(self.layers)):
-      img1 = cv2.imread(f"{self.sys_paths[layer_idx]}{self.filenames[layer_idx][:-3]}jpg")
+      img1 = cv2.imread(f"{self.filenames[layer_idx][:-3]}jpg")
       
       self.draw_trail(self.layers, layer_idx, img1)
       self.draw_track(self.layers, layer_idx, img1)
@@ -169,7 +169,7 @@ class ObjectTrackManager:
     a linked list under the hood?"
     Because we want to write to each picture, layer by layer.
     '''
-    for trail_idx in range(max(layer_idx- ObjectTrackManager.display_constants["trail_len"],0),layer_idx):
+    for trail_idx in range(max(layer_idx- ObjectTrackManager.display_constants["trail_len"],0),max(1,layer_idx)):
       layer = layer_list[trail_idx]
       for ybbox in layer:
         color = (255,0,0)
@@ -185,7 +185,7 @@ class ObjectTrackManager:
         ArtFxns.draw_line(img1,ybbox,color)
     
     # add identifier to the entity
-    last_layer = layer_list[layer_idx - 1]
+    last_layer = layer_list[max(0, layer_idx - 1)]
     for ybbox in last_layer:
       color = (255,0,255)
       
@@ -208,9 +208,13 @@ class ObjectTrackManager:
     Helper function for drawing an individual trail
     '''
     # draw tracks from all images before
-    for trail_idx in range(max(0,layer_idx - 1), layer_idx):
+    if layer_idx == 0:
+      print("zero")
+    for trail_idx in range(max(0,layer_idx - 1), max(1,layer_idx)):
       layer = layer_list[trail_idx]
       for ybbox in layer:
+        if layer_idx == 0:
+          print(ybbox.get_corner_coords())
         color = (255,0,255)
         offt = 4
         if ybbox.parent_track != None:  # ybbox is part of a track
@@ -218,7 +222,8 @@ class ObjectTrackManager:
         elif ybbox.next != None: # bbox is orphaned
           print("ERROR, Parent is not linked but track is not over.")
         else: # ybbox is last in the track
-          offt = 30
+          offt = 4
+          print("last")
 
         if BOXES:
           ArtFxns.draw_rectangle(img1, ybbox, color)

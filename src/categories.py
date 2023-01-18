@@ -1,9 +1,9 @@
 
 CATEGORIES = [
 {"id": 0,
-"name": "generic",
+"name": "fish",
 "supercategory": "None"},
 {"id": 1,
-"name": "specific",
-"supercategory": "generic"}
+"name": "atlantic spadefish",
+"supercategory": "fish"},
 ]
