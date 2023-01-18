@@ -94,7 +94,7 @@ class ObjectTrackManager:
     # construct filename lookup dictionary
     fdict = {}
     for i,f in enumerate(self.filenames):
-      fdict[f'{f[:-3]}jpg'] = i
+      fdict[f'{f[:-3]}png'] = i
     
     # construct "images" : []
     imgs = []
@@ -153,11 +153,11 @@ class ObjectTrackManager:
     Draws YoloBox information on the corresponding images
     '''
     for layer_idx in range(len(self.layers)):
-      img1 = cv2.imread(f"{self.filenames[layer_idx][:-3]}jpg")
+      img1 = cv2.imread(f"{self.filenames[layer_idx][:-3]}png")
       
       self.draw_trail(self.layers, layer_idx, img1)
       self.draw_track(self.layers, layer_idx, img1)
-      cv2.imwrite(f"{layer_idx}.jpg",img1)
+      cv2.imwrite(f"{layer_idx}.png",img1)
       # im.save(f"{layer_idx}.jpg")
 
 
