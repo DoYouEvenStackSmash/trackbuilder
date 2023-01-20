@@ -100,6 +100,7 @@ def build_tracks(files,layer_list):
 
 def freeze_tracks(otm):
   '''
+  HELPER
   BUILDER, LOADER
   Wrapper function for the "irreversible" process of ossifying tracks as doubly linked lists.
   
@@ -109,15 +110,16 @@ def freeze_tracks(otm):
   otm.link_all_tracks(CUTOFF)
   # return otm
 
-def export_tracks(otm,filehandle=None):
+def export_tracks(otm,filehandle=None, angle = 0):
   '''
+  HELPER
   BUILDER, LOADER
   Wrapper function for exporting the contents of ObjectTrackManager in LOCO format.
   
   Writes output to a file handle or stdout
   Does not return anything
   '''
-  coco_s = otm.export_loco_fmt()
+  coco_s = otm.export_loco_fmt(angle)
   if filehandle == None:
     f = open("out.json","w")
     f.write(json.dumps(coco_s,indent=2))
@@ -182,7 +184,35 @@ def draw_annotations(infile, sys_path):
   # "export"
   o.draw_ybbox_data_on_images()
 
+def rotate_annotations(infile, sys_path, degree, outfile = None):
+  '''
+  ROTATE
+  Loads annotations from json file
+  Rotates them
+  Generates new images
+  Writes a LOCO file referencing those new images
+  '''
+  s = al.load_annotations_from_json_file(infile)
+  o = import_tracks(s,sys_path)
+  freeze_tracks(o)
+  
+  o.rotate_linked_tracks(degree)
+  if outfile == None:
+    export_tracks(o,sys.stdout, degree)
+  elif outfile != infile:
+    f = open(outfile,"w")
+    export_tracks(o,f, degree)
+    f.close()
+  else:
+    print(f"danger of overwriting {infile}\naborting...")
+  
+
 def draw_rotated_annotations(infile, sys_path, degree):
+  '''
+  DRAW ROTATED
+  loads annotations from loco json, rotates them, and draws their image files
+  Does not return
+  '''
   s = al.load_annotations_from_json_file(infile)
   o = import_tracks(s,sys_path)
   freeze_tracks(o)
@@ -198,7 +228,9 @@ def main():
   build_help = "build [input_file] [optional_output]"
   reload_help = "reload [input_loco_file] [optional_output]"
   draw_help = "draw [input_loco_file] [path_to_images]"
-  h = [build_help,reload_help,draw_help]
+  rot_help = "rotate [input_file] [path_to_images] [degrees]"
+  draw_rot_help = "draw-rot [input_loco_file] [path_to_images] [degrees (x = {90, 180, 270})]"
+  h = [build_help,reload_help,draw_help, rot_help, draw_rot_help]
   # print(sys.argv)
   if len(sys.argv) < 3:
     print(f"usage:")
@@ -215,7 +247,6 @@ def main():
         reload_annotations(infile=sys.argv[2], outfile=sys.argv[3])
       else:
         reload_annotations(infile=sys.argv[2])
-      
     case 'build': # build tracks from scratch
     
       if len(sys.argv) == 4:
@@ -228,6 +259,13 @@ def main():
         print("must specify draw [input_file] [path_to_images]")
       else:
         draw_annotations(sys.argv[2],sys.argv[3])
+      
+    case 'rotate':
+      if len(sys.argv) < 5:
+        print("must specify rotate [input_file] [path_to_images] [degrees]")
+      else:
+        rotate_annotations(sys.argv[2], sys.argv[3], int(sys.argv[4]), sys.argv[5])
+
     case 'draw-rot':
       
       if len(sys.argv) != 5:

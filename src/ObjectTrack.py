@@ -65,19 +65,30 @@ class ObjectTrack:
     return bool(fc - self.last_frame < expiration)
   
   def rotate_track(self, offset_deg):
+    ''' 
+    rotate all boxes on an object track
+    Adjusts rotations to ensure rotation is always 90 degrees
+      e.g. 270 -> -90
+      180 -> reflectXY()
+    '''
     if offset_deg == 0:
       return
+
     dir_flag = 1
     if abs(offset_deg) == 180:
       for ybx in self.path:
         ybx.reflectXY()
       return
     
+    # correct rotations to ensure 90 degrees
     if abs(offset_deg) == 270:
       offset_deg = 90 if offset_deg < 0 else -90
+    
+    # adjust direction
     if offset_deg < 0:
       dir_flag = -1
     
+    # Rotate quadrant of each box
     for ybx in self.path:
       ybx.rotate_quad(dir_flag)
   
@@ -100,7 +111,7 @@ class ObjectTrack:
       
   def get_loco_track(self,fdict,steps):
     '''
-    Get complete track in coco format
+    Get complete track in loco format
     template = {
                 "id":counter, 
                 "image_id": 0, 
@@ -118,7 +129,7 @@ class ObjectTrack:
                 }
     '''
     for yb in self.path:
-      fid = fdict[f'{yb.img_filename[:-3]}jpg']
+      fid = fdict[f'{yb.img_filename[:-3]}png']
       steps.append({
               "id":-1, 
               "image_id": fid, 

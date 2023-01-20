@@ -77,33 +77,84 @@ class ArtFxns:
 		cv2.putText(img1, str(ybbox.parent_track), pt, font, 2, color, 4, cv2.LINE_AA)
 
 	def draw_label(img1, ybbox, label, color = (255,255,255),offt=10):
+		'''
+		Draw a text label on the entity
+		'''
 		pt = ybbox.get_center_coord()
 		font = cv2.FONT_HERSHEY_SIMPLEX
 		pt = (int(pt[0]) - offt * 2,int(pt[1] - offt))
 		cv2.putText(img1, label, pt, font, 1, color, 4, cv2.LINE_AA)
 
+class ImgFxns:
+	'''
+	Image transform helper functions
+	'''
 	def rotate_image_2(img1, image_center, angle):
+		'''
+		Theoretical rotation function
+		Apparently cv2 does something with image scaling, which prevents this from 
+		functioning properly.
+		'''
 		cy,cx = image_center
 		
 		rot_mat = cv2.getRotationMatrix2D(image_center, angle, 1.0)
 		return cv2.warpAffine(img1,rot_mat, image_center,flags=cv2.INTER_LINEAR)
-	
+
 	def rotate_image(img1, image_center, angle):
+		'''
+		Rotate a single image
+		2D rotation matrix
+			|cos(theta),-sin(theta)| |x| = R(theta) |x|
+			|sin(theta), cos(theta)| |y|						|y|
+		'''
 		w, h = image_center[0] * 2, image_center[1] * 2
-		# cx, cy = w/2, h/2
+		
 		rot_mat = cv2.getRotationMatrix2D(image_center, angle, 1.0)
+		
 		abs_cos = abs(rot_mat[0,0])
 		abs_sin = abs(rot_mat[0,1])
+		
 		b_w = int(w * abs_cos + h * abs_sin)
 		b_h = int(w * abs_sin + h * abs_cos)
-
+		# Translate to origin
 		rot_mat[0,2] += b_w / 2 - image_center[0]
 		rot_mat[1,2] += b_h / 2 - image_center[1]
+		
+		# perform rotation
 		return cv2.warpAffine(img1,rot_mat, (b_w, b_h) ,flags=cv2.INTER_LINEAR)
-
-
-
-
+	
+	# rotate images, generate new ones
+	def rotate_images(images, angle):
+		'''
+		Rotate all images and change their dimensions, LOCO format
+		image = {	
+			"id":int
+			"file_name":string,
+			"height":int,
+			"width":int,
+		}
+		'''
+		for i,img in enumerate(images):
+			img1 = cv2.imread(f"{img['file_name']}")
+			
+			# perform rotation to match already rotated bounding boxes
+			if angle != 0:
+				img_center = (int(img['height'] / 2), int(img['width'] / 2))
+				img1 = ImgFxns.rotate_image(img1, img_center, angle)
+			
+			# prepend rotated and angle prefix to file name
+			fn = f"rotated_{angle}_{img['file_name'].split('/')[-1]}"
+			
+			# update image in list with new name
+			img['file_name'] = fn
+			w,h = img1.shape[1],img1.shape[0]
+			img['height'] = h
+			img['width'] = w
+			
+			# write file
+			cv2.imwrite(f"{fn.split('/')[-1]}", img1)
+		return images
+			
 
 class MathFxns:
 	'''
