@@ -155,7 +155,9 @@ def build_annotations(infile,outfile=None):
 def reload_annotations(infile, outfile=None):
   '''
   LOADER
-  Reloads and corrects a json annotation file
+  Loads annotations from a json file
+  Imports and corrects annotations
+  Serializes corrected annotations
   Does not return
   '''
   s = al.load_annotations_from_json_file(infile)
@@ -175,7 +177,8 @@ def reload_annotations(infile, outfile=None):
 def draw_annotations(infile, sys_path):
   '''
   DRAW
-  Loads annotations from LOCO json and draws them on their image files
+  Loads annotations from json file
+  Generates new temp images
   Does not return
   '''
   s = al.load_annotations_from_json_file(infile)
@@ -188,7 +191,7 @@ def rotate_annotations(infile, sys_path, degree, outfile = None):
   '''
   ROTATE
   Loads annotations from json file
-  Rotates them
+  Rotates them according to degree
   Generates new images
   Writes a LOCO file referencing those new images
   '''
@@ -210,7 +213,9 @@ def rotate_annotations(infile, sys_path, degree, outfile = None):
 def draw_rotated_annotations(infile, sys_path, degree):
   '''
   DRAW ROTATED
-  loads annotations from loco json, rotates them, and draws their image files
+  Loads annotations from json file
+  Rotates them according to degree
+  Generates new temp images
   Does not return
   '''
   s = al.load_annotations_from_json_file(infile)
@@ -221,6 +226,13 @@ def draw_rotated_annotations(infile, sys_path, degree):
   o.draw_ybbox_data_on_rotated_images(degree)
 
 def reflect_annotations(infile, sys_path, reflect_axis, outfile=None):
+  '''
+  REFLECT
+  Loads annotations from json file
+  Reflects them according to axis
+  Generates new images
+  Writes a LOCO file referencing those new images
+  '''
   r_ax = 1 if reflect_axis in {"x","X"} else 0
   s = al.load_annotations_from_json_file(infile)
   o = import_tracks(s,sys_path)
@@ -238,6 +250,13 @@ def reflect_annotations(infile, sys_path, reflect_axis, outfile=None):
 
 
 def draw_reflected_annotations(infile, sys_path, reflect_axis = None):
+  '''
+  DRAW REFLECTED
+  Loads annotations from json file
+  Reflects them according to axis
+  Generates new temp images
+  Does not return
+  '''
   r_ax = 1 if reflect_axis in {"x","X"} else 0
   s = al.load_annotations_from_json_file(infile)
   o = import_tracks(s,sys_path)
@@ -254,9 +273,10 @@ def main():
   reload_help = "reload [input_loco_file] [optional_output]"
   draw_help = "draw [input_loco_file] [path_to_images]"
   rot_help = "rotate [input_file] [path_to_images] [degrees]"
+  refl_help = "reflect [input_file] [path_to_images] [axis = (x,y)]"
   draw_rot_help = "draw-rot [input_loco_file] [path_to_images] [degrees (x = {90, 180, 270})]"
-  draw_refl_help = "must specify draw-rot [input_file] [path_to_images] [axis = (x,y)]"
-  h = [build_help,reload_help,draw_help, rot_help, draw_rot_help, draw_refl_help]
+  draw_refl_help = "draw-refl [input_file] [path_to_images] [axis = (x,y)]"
+  h = [build_help,reload_help,draw_help, rot_help, draw_rot_help, refl_help, draw_refl_help]
   # print(sys.argv)
   if len(sys.argv) < 3:
     print(f"usage:")

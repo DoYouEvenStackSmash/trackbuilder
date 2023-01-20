@@ -113,10 +113,14 @@ class ObjectTrackManager:
     steps = self.export_linked_loco_tracks(fdict)
     
     '''
-    Generate new images with which to populate a LOCO of the rotated images
+    Generate new images with which to populate a LOCO of the ROTATED images
     '''
     if angle != 0:
       imgs = ImgFxns.rotate_images(imgs, angle)
+    
+    '''
+    Generate new images with which to populate a LOCO of the REFLECTED images
+    '''
     if reflect_axis != None:
       imgs = ImgFxns.reflect_images(imgs, reflect_axis)
     

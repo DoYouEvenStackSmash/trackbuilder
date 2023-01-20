@@ -156,23 +156,39 @@ class ImgFxns:
 		return images
 	
 	def reflect_image(img1, AXIS = 1):
+		'''
+		Reflect an image about a specified axis
+		'''
 		return cv2.flip(img1, AXIS)
 	
 	def reflect_images(images, AXIS):
+		'''
+		Reflect all images, do not change their dimensions, LOCO format
+		image = {	
+			"id":int
+			"file_name":string,
+			"height":int,
+			"width":int,
+		}
+		'''
 		for i, img in enumerate(images):
 			img1 = cv2.imread(f"{img['file_name']}")
+			
+			# perform reflection to match rotated bounding boxes
 			img1 = ImgFxns.reflect_image(img1, AXIS)
 			
+			# prepend reflected and axis prefix to file name
 			dir_str = "x" if AXIS == 1 else "y"
-			
 			fn = f"reflected_{dir_str}_{img['file_name'].split('/')[-1]}"
 			
-			cv2.imwrite(f"{fn.split('/')[-1]}",img1)
-			
+			# update image in list with new name
 			img['file_name'] = fn
 			w,h = img1.shape[1],img1.shape[0]
 			img['height'] = h
 			img['width'] = w
+			
+			# write file
+			cv2.imwrite(f"{fn.split('/')[-1]}",img1)
 		return images
 
 			
