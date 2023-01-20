@@ -33,7 +33,8 @@ class ObjectTrackManager:
                 linked_tracks = [],
                 trackmap = [],
                 fdict = {},
-                categories = CATEGORIES
+                categories = CATEGORIES,
+                img_centers = []
               ):
     self.global_track_store = global_track_store
     self.inactive_tracks = inactive_tracks
@@ -47,6 +48,7 @@ class ObjectTrackManager:
     self.linked_tracks = linked_tracks
     self.fdict = fdict
     self.categories = categories
+    self.img_centers = img_centers
 
   
   def import_loco_fmt(self, s, sys_path):
@@ -70,6 +72,7 @@ class ObjectTrackManager:
       self.sys_paths.append(sys_path)
       self.fdict[imf['file_name']] = i
       self.layers.append([])
+      self.img_centers.append(tuple((int(imf['width']/2), int(imf['height']/2))))
     
     # load annotations
     steps = s['annotations']
@@ -78,7 +81,10 @@ class ObjectTrackManager:
       if trackmap[st['trackmap_index']] == -1:
         continue
       track = self.get_track(trackmap[st['trackmap_index']])
-      yb = YoloBox(track.class_id, st['bbox'], f'{self.filenames[st["image_id"]][:-3]}txt',)
+      yb = YoloBox( track.class_id, 
+                    st['bbox'], 
+                    f'{self.filenames[st["image_id"]][:-3]}txt',
+                    self.img_centers[st["image_id"]])
       
       # add YoloBox to the appropriate layer based on the image filename
       self.layers[self.fdict[self.filenames[st['image_id']]]].append(yb)
@@ -147,7 +153,18 @@ class ObjectTrackManager:
       steps[i]["id"] = i
     return steps
   
+  def draw_ybbox_data_on_rotated_images(self, rotation_angle = 0):
+    for layer_idx in range(len(self.layers)):
+      img1 = cv2.imread(f"{self.filenames[layer_idx][:-3]}png")
+      if rotation_angle != 0:
+        img_center = self.img_centers[layer_idx]
+        img1 = ArtFxns.rotate_image(img1, img_center, rotation_angle)
 
+
+      self.draw_trail(self.layers, layer_idx, img1)
+      self.draw_track(self.layers, layer_idx, img1)
+      cv2.imwrite(f"rotated_{layer_idx}.png",img1)
+  
   def draw_ybbox_data_on_images(self):
     '''
     Draws YoloBox information on the corresponding images
@@ -228,7 +245,9 @@ class ObjectTrackManager:
         if BOXES:
           ArtFxns.draw_rectangle(img1, ybbox, color)
 
-    
+  def rotate_linked_tracks(self, offset_degrees):
+    for i in self.linked_tracks:
+      self.get_track(i).rotate_track(offset_degrees)
 
   def get_track(self, track_id):
     ''' 

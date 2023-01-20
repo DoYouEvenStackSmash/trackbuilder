@@ -64,7 +64,23 @@ class ObjectTrack:
     '''
     return bool(fc - self.last_frame < expiration)
   
-
+  def rotate_track(self, offset_deg):
+    if offset_deg == 0:
+      return
+    dir_flag = 1
+    if abs(offset_deg) == 180:
+      for ybx in self.path:
+        ybx.reflectXY()
+      return
+    
+    if abs(offset_deg) == 270:
+      offset_deg = 90 if offset_deg < 0 else -90
+    if offset_deg < 0:
+      dir_flag = -1
+    
+    for ybx in self.path:
+      ybx.rotate_quad(dir_flag)
+  
   
   def link_path(self):
     '''

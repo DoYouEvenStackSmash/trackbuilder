@@ -12,7 +12,7 @@ class YoloBox:
     img_file  : identifier for mapping bounding box to source image
     confidence: optional confidence value from inference
   '''
-  def __init__(self,class_id, bbox, img_filename, confidence = None):
+  def __init__(self,class_id, bbox, img_filename, center_xy = None, confidence = None):
     self.class_id = class_id
     self.bbox = bbox
     self.img_filename = img_filename
@@ -20,6 +20,7 @@ class YoloBox:
     self.parent_track = None
     self.next = None
     self.prev = None
+    self.center_xy = center_xy
 
 
   def get_corner_coords(self):
@@ -55,3 +56,25 @@ class YoloBox:
     # calculate width and height
     w,h = abs(pt1[0] - pt2[0]),abs(pt1[1] - pt2[1])
     return [mpx, mpy, w, h]
+  
+  def rotate_quad(self,dir_flag):
+    cbx,cby,w,h = self.bbox
+    cx,cy = self.center_xy
+    self.bbox[0] = cy + ((cby - cy) * dir_flag)
+    self.bbox[1] = cx + ((cbx - cx) * dir_flag * -1)
+    self.bbox[2] = h
+    self.bbox[3] = w
+  
+  def reflectXY(self):
+    # cbx,cby,w,h = self.bbox
+    cx,cy = self.center_xy
+    self.bbox[0] = cx + ((self.bbox[0] - cx) * -1)
+    self.bbox[1] = cy + ((self.bbox[1] - cy) * -1)
+  
+  def reflectX(self):
+    cx = self.center_xy[0]
+    self.bbox[0] = cx + ((self.bbox[0] - cx) * -1)
+
+  def reflectY(self):
+    cy = self.center_xy[1]
+    self.bbox[1] = cy + ((self.bbox[1] - cy) * -1)
