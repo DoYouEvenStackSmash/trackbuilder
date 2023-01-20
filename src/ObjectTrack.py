@@ -64,6 +64,20 @@ class ObjectTrack:
     '''
     return bool(fc - self.last_frame < expiration)
   
+  def reflect_track(self, reflect_axis = None):
+    '''
+    reflect across an axis
+    '''
+    if reflect_axis == None:
+      return 
+    for ybx in self.path:
+      if reflect_axis == 1:
+        ybx.reflectX()
+      elif reflect_axis == 0:
+        ybx.reflectY()
+      else:
+        break
+    
   def rotate_track(self, offset_deg):
     ''' 
     rotate all boxes on an object track
