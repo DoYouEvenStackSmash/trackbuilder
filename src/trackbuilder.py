@@ -333,4 +333,6 @@ def main():
       
     case other:
       print("unknown")
-main()
+
+if __name__ == '__main__':
+  main()
