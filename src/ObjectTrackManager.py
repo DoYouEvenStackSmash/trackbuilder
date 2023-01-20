@@ -112,8 +112,13 @@ class ObjectTrackManager:
     # construct "annotations" : []
     steps = self.export_linked_loco_tracks(fdict)
     
+    '''
+    Generate new images with which to populate a LOCO of the rotated images
+    '''
     if angle != 0:
       imgs = ImgFxns.rotate_images(imgs, angle)
+    
+    
     # construct "linked_tracks" : []
     linked_tracks = [{"track_id": i, "category_id" : self.get_track(i).class_id, 
                       "track_len": 0, "steps":[] } 
@@ -159,6 +164,9 @@ class ObjectTrackManager:
     return steps
   
   def draw_ybbox_data_on_rotated_images(self, rotation_angle = 0):
+    '''
+    API accessible prototype image rotation. Does not serialize LOCO
+    '''
     for layer_idx in range(len(self.layers)):
       img1 = cv2.imread(f"{self.filenames[layer_idx][:-3]}png")
       if rotation_angle != 0:
@@ -251,6 +259,9 @@ class ObjectTrackManager:
           ArtFxns.draw_rectangle(img1, ybbox, color)
 
   def rotate_linked_tracks(self, offset_degrees):
+    '''
+    API accessible rotation of bounding boxes
+    '''
     for i in self.linked_tracks:
       self.get_track(i).rotate_track(offset_degrees)
 

@@ -100,6 +100,7 @@ def build_tracks(files,layer_list):
 
 def freeze_tracks(otm):
   '''
+  HELPER
   BUILDER, LOADER
   Wrapper function for the "irreversible" process of ossifying tracks as doubly linked lists.
   
@@ -111,6 +112,7 @@ def freeze_tracks(otm):
 
 def export_tracks(otm,filehandle=None, angle = 0):
   '''
+  HELPER
   BUILDER, LOADER
   Wrapper function for exporting the contents of ObjectTrackManager in LOCO format.
   
@@ -183,6 +185,13 @@ def draw_annotations(infile, sys_path):
   o.draw_ybbox_data_on_images()
 
 def rotate_annotations(infile, sys_path, degree, outfile = None):
+  '''
+  ROTATE
+  Loads annotations from json file
+  Rotates them
+  Generates new images
+  Writes a LOCO file referencing those new images
+  '''
   s = al.load_annotations_from_json_file(infile)
   o = import_tracks(s,sys_path)
   freeze_tracks(o)

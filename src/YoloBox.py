@@ -58,6 +58,10 @@ class YoloBox:
     return [mpx, mpy, w, h]
   
   def rotate_quad(self,dir_flag):
+    '''
+    Rotate a yolobox 90 degrees
+    Since the expectation is a transpose of the image, center is changed
+    '''
     cbx,cby,w,h = self.bbox
     cx,cy = self.center_xy
     self.bbox[0] = cy + ((cby - cy) * dir_flag)
@@ -69,15 +73,25 @@ class YoloBox:
     self.center_xy = cy,cx
   
   def reflectXY(self):
+    '''
+    Reflect a box across the x, then the Y axis. 
+    Equivalent to a rotation by 180 degrees
+    '''
     # cbx,cby,w,h = self.bbox
     cx,cy = self.center_xy
     self.bbox[0] = cx + ((self.bbox[0] - cx) * -1)
     self.bbox[1] = cy + ((self.bbox[1] - cy) * -1)
   
   def reflectX(self):
+    '''
+    reflect a box across the x axis 
+    '''
     cx = self.center_xy[0]
     self.bbox[0] = cx + ((self.bbox[0] - cx) * -1)
 
   def reflectY(self):
+    '''
+    reflect a box across the y axis
+    '''
     cy = self.center_xy[1]
     self.bbox[1] = cy + ((self.bbox[1] - cy) * -1)
