@@ -81,7 +81,30 @@ class ArtFxns:
 		font = cv2.FONT_HERSHEY_SIMPLEX
 		pt = (int(pt[0]) - offt * 2,int(pt[1] - offt))
 		cv2.putText(img1, label, pt, font, 1, color, 4, cv2.LINE_AA)
+
+	def rotate_image_2(img1, image_center, angle):
+		cy,cx = image_center
+		
+		rot_mat = cv2.getRotationMatrix2D(image_center, angle, 1.0)
+		return cv2.warpAffine(img1,rot_mat, image_center,flags=cv2.INTER_LINEAR)
 	
+	def rotate_image(img1, image_center, angle):
+		w, h = image_center[0] * 2, image_center[1] * 2
+		# cx, cy = w/2, h/2
+		rot_mat = cv2.getRotationMatrix2D(image_center, angle, 1.0)
+		abs_cos = abs(rot_mat[0,0])
+		abs_sin = abs(rot_mat[0,1])
+		b_w = int(w * abs_cos + h * abs_sin)
+		b_h = int(w * abs_sin + h * abs_cos)
+
+		rot_mat[0,2] += b_w / 2 - image_center[0]
+		rot_mat[1,2] += b_h / 2 - image_center[1]
+		return cv2.warpAffine(img1,rot_mat, (b_w, b_h) ,flags=cv2.INTER_LINEAR)
+
+
+
+
+
 class MathFxns:
 	'''
 	Math helper functions

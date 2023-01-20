@@ -182,6 +182,15 @@ def draw_annotations(infile, sys_path):
   # "export"
   o.draw_ybbox_data_on_images()
 
+def draw_rotated_annotations(infile, sys_path, degree):
+  s = al.load_annotations_from_json_file(infile)
+  o = import_tracks(s,sys_path)
+  freeze_tracks(o)
+  
+  o.rotate_linked_tracks(degree)
+  o.draw_ybbox_data_on_rotated_images(degree)
+
+
 def main():
   '''
   CLI but not with argparse
@@ -219,7 +228,13 @@ def main():
         print("must specify draw [input_file] [path_to_images]")
       else:
         draw_annotations(sys.argv[2],sys.argv[3])
-
+    case 'draw-rot':
+      
+      if len(sys.argv) != 5:
+        print("must specify draw-rot [input_file] [path_to_images] [degrees]")
+      else:
+        draw_rotated_annotations(sys.argv[2], sys.argv[3], int(sys.argv[4]))
+        
     case other:
       print("unknown")
 main()
