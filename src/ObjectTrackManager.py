@@ -91,7 +91,7 @@ class ObjectTrackManager:
       # add the yolobox to the correct track
       track.add_new_step(yb,0)
 
-  def export_loco_fmt(self, angle = 0):
+  def export_loco_fmt(self, angle = 0, reflect_axis = None):
     '''
     Export active tracks and associated metadata to loco format
     '''
@@ -117,7 +117,8 @@ class ObjectTrackManager:
     '''
     if angle != 0:
       imgs = ImgFxns.rotate_images(imgs, angle)
-    
+    if reflect_axis != None:
+      imgs = ImgFxns.reflect_images(imgs, reflect_axis)
     
     # construct "linked_tracks" : []
     linked_tracks = [{"track_id": i, "category_id" : self.get_track(i).class_id, 
@@ -177,7 +178,21 @@ class ObjectTrackManager:
       self.draw_trail(self.layers, layer_idx, img1)
       self.draw_track(self.layers, layer_idx, img1)
       cv2.imwrite(f"rotated_{layer_idx}.png",img1)
+
   
+  def draw_ybbox_data_on_reflected_images(self, reflect_axis = None):
+    '''
+    API accessible prototype image reflection. Does not serialize LOCO
+    '''
+    for layer_idx in range(len(self.layers)):
+      img1 = cv2.imread(f"{self.filenames[layer_idx][:-3]}png")
+      if reflect_axis != None:
+        img1 = ImgFxns.reflect_image(img1, reflect_axis)
+
+      self.draw_trail(self.layers, layer_idx, img1)
+      self.draw_track(self.layers, layer_idx, img1)
+      cv2.imwrite(f"reflected_{layer_idx}.png",img1)
+
   def draw_ybbox_data_on_images(self):
     '''
     Draws YoloBox information on the corresponding images
@@ -264,6 +279,10 @@ class ObjectTrackManager:
     '''
     for i in self.linked_tracks:
       self.get_track(i).rotate_track(offset_degrees)
+    
+  def reflect_linked_tracks(self, reflect_axis):
+    for i in self.linked_tracks:
+      self.get_track(i).reflect_track(reflect_axis)
 
   def get_track(self, track_id):
     ''' 

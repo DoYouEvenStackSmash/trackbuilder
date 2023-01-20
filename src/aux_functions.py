@@ -154,6 +154,27 @@ class ImgFxns:
 			# write file
 			cv2.imwrite(f"{fn.split('/')[-1]}", img1)
 		return images
+	
+	def reflect_image(img1, AXIS = 1):
+		return cv2.flip(img1, AXIS)
+	
+	def reflect_images(images, AXIS):
+		for i, img in enumerate(images):
+			img1 = cv2.imread(f"{img['file_name']}")
+			img1 = ImgFxns.reflect_image(img1, AXIS)
+			
+			dir_str = "x" if AXIS == 1 else "y"
+			
+			fn = f"reflected_{dir_str}_{img['file_name'].split('/')[-1]}"
+			
+			cv2.imwrite(f"{fn.split('/')[-1]}",img1)
+			
+			img['file_name'] = fn
+			w,h = img1.shape[1],img1.shape[0]
+			img['height'] = h
+			img['width'] = w
+		return images
+
 			
 
 class MathFxns:

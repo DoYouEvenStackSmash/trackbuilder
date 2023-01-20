@@ -110,7 +110,7 @@ def freeze_tracks(otm):
   otm.link_all_tracks(CUTOFF)
   # return otm
 
-def export_tracks(otm,filehandle=None, angle = 0):
+def export_tracks(otm,filehandle=None, angle = 0,reflect_axis=None):
   '''
   HELPER
   BUILDER, LOADER
@@ -119,7 +119,7 @@ def export_tracks(otm,filehandle=None, angle = 0):
   Writes output to a file handle or stdout
   Does not return anything
   '''
-  coco_s = otm.export_loco_fmt(angle)
+  coco_s = otm.export_loco_fmt(angle=angle,reflect_axis=reflect_axis)
   if filehandle == None:
     f = open("out.json","w")
     f.write(json.dumps(coco_s,indent=2))
@@ -220,6 +220,31 @@ def draw_rotated_annotations(infile, sys_path, degree):
   o.rotate_linked_tracks(degree)
   o.draw_ybbox_data_on_rotated_images(degree)
 
+def reflect_annotations(infile, sys_path, reflect_axis, outfile=None):
+  r_ax = 1 if reflect_axis in {"x","X"} else 0
+  s = al.load_annotations_from_json_file(infile)
+  o = import_tracks(s,sys_path)
+  freeze_tracks(o)
+
+  o.reflect_linked_tracks(r_ax)
+  if outfile == None:
+    export_tracks(o,sys.stdout, reflect_axis=r_ax)
+  elif outfile != infile:
+    f = open(outfile,"w")
+    export_tracks(o,f, reflect_axis=r_ax)
+    f.close()
+  else:
+    print(f"danger of overwriting {infile}\naborting...")
+
+
+def draw_reflected_annotations(infile, sys_path, reflect_axis = None):
+  r_ax = 1 if reflect_axis in {"x","X"} else 0
+  s = al.load_annotations_from_json_file(infile)
+  o = import_tracks(s,sys_path)
+  freeze_tracks(o)
+
+  o.reflect_linked_tracks(r_ax)
+  o.draw_ybbox_data_on_reflected_images(r_ax)
 
 def main():
   '''
@@ -230,7 +255,8 @@ def main():
   draw_help = "draw [input_loco_file] [path_to_images]"
   rot_help = "rotate [input_file] [path_to_images] [degrees]"
   draw_rot_help = "draw-rot [input_loco_file] [path_to_images] [degrees (x = {90, 180, 270})]"
-  h = [build_help,reload_help,draw_help, rot_help, draw_rot_help]
+  draw_refl_help = "must specify draw-rot [input_file] [path_to_images] [axis = (x,y)]"
+  h = [build_help,reload_help,draw_help, rot_help, draw_rot_help, draw_refl_help]
   # print(sys.argv)
   if len(sys.argv) < 3:
     print(f"usage:")
@@ -272,7 +298,19 @@ def main():
         print("must specify draw-rot [input_file] [path_to_images] [degrees]")
       else:
         draw_rotated_annotations(sys.argv[2], sys.argv[3], int(sys.argv[4]))
-        
+    
+    case 'reflect':
+      if len(sys.argv) < 5:
+        print("must specify reflect [input_file] [path_to_images] [axis=(x,y)]")
+      else:
+        reflect_annotations(sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5])
+    
+    case 'draw-refl':
+      if len(sys.argv) != 5:
+        print("must specify draw-refl [input_file] [path_to_images] [axis = (x,y)]")
+      else:
+        draw_reflected_annotations(sys.argv[2], sys.argv[3], sys.argv[4])
+      
     case other:
       print("unknown")
 main()
