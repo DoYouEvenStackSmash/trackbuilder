@@ -91,12 +91,12 @@ class ObjectTrackManager:
       # add the yolobox to the correct track
       track.add_new_step(yb,0)
 
-  def export_loco_fmt(self):
+  def export_loco_fmt(self, angle = 0):
     '''
     Export active tracks and associated metadata to loco format
     '''
-    h = 1080
-    w = 1920
+    # h = 1080
+    # w = 1920
     # construct filename lookup dictionary
     fdict = {}
     for i,f in enumerate(self.filenames):
@@ -105,15 +105,20 @@ class ObjectTrackManager:
     # construct "images" : []
     imgs = []
     for k,v in fdict.items():
+      half_h,half_w = self.img_centers[v]
+      h,w = half_h * 2, half_w * 2
       imgs.append({"id":v, "file_name": k, "height": h, "width": w})
     
     # construct "annotations" : []
     steps = self.export_linked_loco_tracks(fdict)
     
+    if angle != 0:
+      imgs = ImgFxns.rotate_images(imgs, angle)
     # construct "linked_tracks" : []
     linked_tracks = [{"track_id": i, "category_id" : self.get_track(i).class_id, 
                       "track_len": 0, "steps":[] } 
                       for i in self.linked_tracks]
+
     
     trackmap = {} # {track_id : posn in linked_tracks}
     for i,lt in enumerate(linked_tracks):
@@ -158,7 +163,7 @@ class ObjectTrackManager:
       img1 = cv2.imread(f"{self.filenames[layer_idx][:-3]}png")
       if rotation_angle != 0:
         img_center = self.img_centers[layer_idx]
-        img1 = ArtFxns.rotate_image(img1, img_center, rotation_angle)
+        img1 = ImgFxns.rotate_image(img1, img_center, rotation_angle)
 
 
       self.draw_trail(self.layers, layer_idx, img1)

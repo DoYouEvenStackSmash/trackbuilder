@@ -118,7 +118,7 @@ class ObjectTrack:
                 }
     '''
     for yb in self.path:
-      fid = fdict[f'{yb.img_filename[:-3]}jpg']
+      fid = fdict[f'{yb.img_filename[:-3]}png']
       steps.append({
               "id":-1, 
               "image_id": fid, 

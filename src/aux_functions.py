@@ -82,12 +82,13 @@ class ArtFxns:
 		pt = (int(pt[0]) - offt * 2,int(pt[1] - offt))
 		cv2.putText(img1, label, pt, font, 1, color, 4, cv2.LINE_AA)
 
+class ImgFxns:
 	def rotate_image_2(img1, image_center, angle):
 		cy,cx = image_center
 		
 		rot_mat = cv2.getRotationMatrix2D(image_center, angle, 1.0)
 		return cv2.warpAffine(img1,rot_mat, image_center,flags=cv2.INTER_LINEAR)
-	
+
 	def rotate_image(img1, image_center, angle):
 		w, h = image_center[0] * 2, image_center[1] * 2
 		# cx, cy = w/2, h/2
@@ -100,6 +101,23 @@ class ArtFxns:
 		rot_mat[0,2] += b_w / 2 - image_center[0]
 		rot_mat[1,2] += b_h / 2 - image_center[1]
 		return cv2.warpAffine(img1,rot_mat, (b_w, b_h) ,flags=cv2.INTER_LINEAR)
+	
+	# rotate images, generate new ones
+	def rotate_images(images, angle):
+
+		for i,img in enumerate(images):
+			img1 = cv2.imread(f"{img['file_name']}")
+			if angle != 0:
+				img_center = (int(img['height'] / 2), int(img['width'] / 2))
+				img1 = ImgFxns.rotate_image(img1, img_center, angle)
+			fn = f"rotated_{angle}_{img['file_name'].split('/')[-1]}"
+			img['file_name'] = fn
+			w,h = img1.shape[1],img1.shape[0]
+			img['height'] = h
+			img['width'] = w
+			cv2.imwrite(f"{fn.split('/')[-1]}", img1)
+		return images
+			
 
 
 

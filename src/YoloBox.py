@@ -64,6 +64,9 @@ class YoloBox:
     self.bbox[1] = cx + ((cbx - cx) * dir_flag * -1)
     self.bbox[2] = h
     self.bbox[3] = w
+    
+    # swap dimensions after rotation
+    self.center_xy = cy,cx
   
   def reflectXY(self):
     # cbx,cby,w,h = self.bbox
