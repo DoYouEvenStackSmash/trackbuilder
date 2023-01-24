@@ -6,7 +6,8 @@ from os import path
 import json
 
 class AnnotationLoader:
-  
+  const_w = 1920
+  const_h = 1080
   def load_annotation_file_list(valid_file, sys_path = "."): 
     '''
     Load filenames from a file for further preprocessing
@@ -111,7 +112,7 @@ class AnnotationLoader:
     
     return yoloboxes
   
-  def parse_yolo_annotations(s, valid_file, w_factor=1920, h_factor=1080):
+  def parse_yolo_annotations(s, valid_file, w_factor=None, h_factor=None):
     '''
     Load yolo format bounding box from text file
       class center_x  center_y  width height

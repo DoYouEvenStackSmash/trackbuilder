@@ -233,7 +233,7 @@ def reflect_annotations(infile, sys_path, reflect_axis, outfile=None):
   Generates new images
   Writes a LOCO file referencing those new images
   '''
-  r_ax = 1 if reflect_axis in {"x","X"} else 0
+  r_ax = 0 if reflect_axis in {"x","X"} else 1
   s = al.load_annotations_from_json_file(infile)
   o = import_tracks(s,sys_path)
   freeze_tracks(o)

@@ -84,14 +84,14 @@ class YoloBox:
   
   def reflectX(self):
     '''
-    reflect a box across the x axis 
+    reflect a box across the y axis 
     '''
     cx = self.center_xy[0]
     self.bbox[0] = cx + ((self.bbox[0] - cx) * -1)
 
   def reflectY(self):
     '''
-    reflect a box across the y axis
+    reflect a box across the X axis
     '''
     cy = self.center_xy[1]
     self.bbox[1] = cy + ((self.bbox[1] - cy) * -1)
