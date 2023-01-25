@@ -178,7 +178,7 @@ class ImgFxns:
 			img1 = ImgFxns.reflect_image(img1, AXIS)
 			
 			# prepend reflected and axis prefix to file name
-			dir_str = "x" if AXIS == 1 else "y"
+			dir_str = "x" if AXIS == 0 else "y"
 			fn = f"reflected_{dir_str}_{img['file_name'].split('/')[-1]}"
 			
 			# update image in list with new name

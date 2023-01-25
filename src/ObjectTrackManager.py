@@ -15,9 +15,9 @@ IDENTIFIERS = not LABELS
 BOXES = IDENTIFIERS
 class ObjectTrackManager:
   constants = { "avg_tolerance"   : 10, 
-              "track_lifespan"  : 3,
+              "track_lifespan"  : 2,
               "default_avg_dist": 10,
-              "radial_exclusion": 150,
+              "radial_exclusion": 300,
             }
   display_constants = {"trail_len" : 0}
   def __init__(self,
@@ -34,7 +34,8 @@ class ObjectTrackManager:
                 trackmap = [],
                 fdict = {},
                 categories = CATEGORIES,
-                img_centers = []
+                img_centers = [],
+                imported = False
               ):
     self.global_track_store = global_track_store
     self.inactive_tracks = inactive_tracks
@@ -49,10 +50,12 @@ class ObjectTrackManager:
     self.fdict = fdict
     self.categories = categories
     self.img_centers = img_centers
+    self.imported = imported
 
   
   def import_loco_fmt(self, s, sys_path):
     # set up trackmap for accessing tracks
+    self.imported = True
     trackmap = s['trackmap']
     lt = s['linked_tracks']
     for i,track_id in enumerate(trackmap):
@@ -95,8 +98,6 @@ class ObjectTrackManager:
     '''
     Export active tracks and associated metadata to loco format
     '''
-    # h = 1080
-    # w = 1920
     # construct filename lookup dictionary
     fdict = {}
     for i,f in enumerate(self.filenames):
@@ -105,7 +106,16 @@ class ObjectTrackManager:
     # construct "images" : []
     imgs = []
     for k,v in fdict.items():
-      half_h,half_w = self.img_centers[v]
+      half_h = 540
+      half_w = 960
+      # if imported, adjust angles
+      if self.imported:
+        #if rotaged about the center, swap height and width
+        if angle != 0:
+          half_h, half_w = self.img_centers[v]
+        else:
+          half_w, half_h = self.img_centers[v]
+        
       h,w = half_h * 2, half_w * 2
       imgs.append({"id":v, "file_name": k, "height": h, "width": w})
     
@@ -218,7 +228,9 @@ class ObjectTrackManager:
     a linked list under the hood?"
     Because we want to write to each picture, layer by layer.
     '''
-    for trail_idx in range(max(layer_idx- ObjectTrackManager.display_constants["trail_len"],0),max(1,layer_idx)):
+    start = max(layer_idx- ObjectTrackManager.display_constants["trail_len"],0)
+    stop = max(start + 1,layer_idx)
+    for trail_idx in range(start,stop):
       layer = layer_list[trail_idx]
       for ybbox in layer:
         color = (255,0,0)
@@ -235,6 +247,7 @@ class ObjectTrackManager:
     
     # add identifier to the entity
     last_layer = layer_list[max(0, layer_idx - 1)]
+    
     for ybbox in last_layer:
       color = (255,0,255)
       
@@ -259,7 +272,9 @@ class ObjectTrackManager:
     # draw tracks from all images before
     if layer_idx == 0:
       print("zero")
-    for trail_idx in range(max(0,layer_idx - 1), max(1,layer_idx)):
+    start = max(0, layer_idx - 1)
+    stop = max(start + 1, layer_idx)
+    for trail_idx in range(start, stop):
       layer = layer_list[trail_idx]
       for ybbox in layer:
         if layer_idx == 0:
