@@ -10,7 +10,7 @@ from categories import CATEGORIES
   global_track_store: {track_id : ObjectTrack}
       lookup dictionary for directly accessing track objects by ID
 '''
-LABELS = False
+LABELS = True
 IDENTIFIERS = not LABELS
 BOXES = IDENTIFIERS
 class ObjectTrackManager:
@@ -60,7 +60,7 @@ class ObjectTrackManager:
     lt = s['linked_tracks']
     for i,track_id in enumerate(trackmap):
       if track_id not in self.global_track_store or track_id == -1:
-        self.global_track_store[track_id] = ObjectTrack(track_id)
+        self.global_track_store[track_id] = ObjectTrack(track_id, lt[i]['category_id'])
         self.global_track_store[track_id].class_id = lt[i]['category_id']
       else: #already present
         continue
@@ -324,7 +324,7 @@ class ObjectTrackManager:
     Helper function for creating object tracks
     '''
     track_id = len(self.global_track_store)
-    T = ObjectTrack(track_id)
+    T = ObjectTrack(track_id, entity.class_id)
     T.add_new_step(entity, fc)
     self.global_track_store[track_id] = T
     self.active_tracks.append(T)
@@ -337,7 +337,7 @@ class ObjectTrackManager:
     self.active_tracks = collections.deque()
     curr_layer = self.layers[0]
     for elem in curr_layer:
-      self.create_new_track(elem,0)
+      self.create_new_track(elem,elem.class_id)
   
 
   def close_all_tracks(self):

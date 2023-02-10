@@ -1,7 +1,7 @@
 
 import numpy as np
 from YoloBox import YoloBox
-
+from aux_functions import ImgFxns
 from os import path
 import json
 
@@ -62,13 +62,14 @@ class AnnotationLoader:
     s = [i.rstrip("\n") for i in s]    
     return s
   
-  def load_yolofmt_layer(valid_file):
+  def load_yolofmt_layer(valid_png_file):
     '''
     Load annotations from yolo/x formatted files
     Returns a (possibly empty) list of yoloboxes
     '''
-    # expects *.jpg or similar
-    valid_filename = valid_file[:-3] + "txt"
+    # expects *.png or similar
+    image_w, image_h = ImgFxns.get_img_shape(valid_png_file)
+    valid_filename = valid_png_file[:-3] + "txt"
 
     annotations = AnnotationLoader.load_annotations_from_text_file(valid_filename)
     if len(annotations) == 0:
@@ -79,7 +80,7 @@ class AnnotationLoader:
     if len(annotations[0].split()) == AnnotationLoader.YOLOX_LEN:
       return AnnotationLoader.parse_yolox_annotations(annotations, valid_filename)
     elif len(annotations[0].split()) == AnnotationLoader.YOLO_LEN:
-      return AnnotationLoader.parse_yolo_annotations(annotations, valid_filename)
+      return AnnotationLoader.parse_yolo_annotations(annotations, valid_filename, image_w, image_h)
     else:
       print(f"SKIPPING {valid_filename}: ANNOTATIONS FORMAT NOT RECOGNIZED")
       return []
