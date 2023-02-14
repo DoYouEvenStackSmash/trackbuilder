@@ -3,7 +3,7 @@ import numpy as np
 from aux_functions import *
 
 class ObjectTrack:
-  def __init__(self, track_id, class_id = 0):
+  def __init__(self, track_id, class_id):
     self.r = 0
     self.theta = 0
     self.delta_theta = []

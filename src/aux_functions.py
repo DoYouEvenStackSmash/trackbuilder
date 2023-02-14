@@ -1,7 +1,8 @@
 #!/usr/bin/python3
 import cv2
 import numpy as np
-
+import magic
+import re
 # STANDARD_COLORS = [
 #		 'AliceBlue', 'Chartreuse', 'Aqua', 'Aquamarine', 'Azure', 'Beige', 'Bisque',
 #		 'BlanchedAlmond', 'BlueViolet', 'BurlyWood', 'CadetBlue', 'AntiqueWhite',
@@ -89,6 +90,13 @@ class ImgFxns:
 	'''
 	Image transform helper functions
 	'''
+	def get_img_shape(valid_img_filename):
+		print(valid_img_filename)
+		magic_data = magic.from_file(str(valid_img_filename))
+		print(magic_data)
+		width, height = re.search('(\d+) x (\d+)', magic_data).groups()
+		return int(width), int(height)
+
 	def rotate_image_2(img1, image_center, angle):
 		'''
 		Theoretical rotation function
