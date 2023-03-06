@@ -195,6 +195,11 @@ def rotate_annotations(infile, sys_path, degree, outfile = None):
   Generates new images
   Writes a LOCO file referencing those new images
   '''
+  try:
+    degree = float(degree)
+  except:
+    print(f"Invalid value for degree: {degree}!")
+    return
   s = al.load_annotations_from_json_file(infile)
   o = import_tracks(s,sys_path)
   freeze_tracks(o)
@@ -218,6 +223,11 @@ def draw_rotated_annotations(infile, sys_path, degree):
   Generates new temp images
   Does not return
   '''
+  try:
+    degree = float(degree)
+  except:
+    print(f"Invalid value for degree: {degree}!")
+    return
   s = al.load_annotations_from_json_file(infile)
   o = import_tracks(s,sys_path)
   freeze_tracks(o)
@@ -267,72 +277,28 @@ def draw_reflected_annotations(infile, sys_path, reflect_axis = None):
 
 def main():
   '''
-  CLI but not with argparse
+  Simple CLI, assumes user is somewhat competent
   '''
-  build_help = "build [input_file] [optional_output]"
-  reload_help = "reload [input_loco_file] [optional_output]"
-  draw_help = "draw [input_loco_file] [path_to_images]"
-  rot_help = "rotate [input_file] [path_to_images] [degrees]"
-  refl_help = "reflect [input_file] [path_to_images] [axis = (x,y)]"
-  draw_rot_help = "draw-rot [input_loco_file] [path_to_images] [degrees (x = {90, 180, 270})]"
-  draw_refl_help = "draw-refl [input_file] [path_to_images] [axis = (x,y)]"
-  h = [build_help,reload_help,draw_help, rot_help, draw_rot_help, refl_help, draw_refl_help]
-  # print(sys.argv)
-  if len(sys.argv) < 3:
-    print(f"usage:")
-    for i in h:
-      print(f"\t{i}")
+  valid_actions = {
+    "reload":{"func":reload_annotations, "help":"[input_loco_file] [optional_output]"},
+    "build":{"func":build_annotations, "help":"[input_file] [optional_output]"},
+    "draw":{"func":draw_annotations, "help":"[input_loco_file] [path_to_images]"},
+    "rotate":{"func":rotate_annotations, "help":"[input_file] [path_to_images] [degrees]"},
+    "draw-rot":{"func":draw_rotated_annotations, "help":"[input_loco_file] [path_to_images] [degrees (x = {90, 180, 270})]"},
+    "reflect":{"func":reflect_annotations, "help":"[input_file] [path_to_images] [axis = (x,y)]"},
+    "draw-refl":{"func":draw_reflected_annotations, "help":"[input_file] [path_to_images] [axis = (x,y)]"},
+  }
+  help_msg = "\n".join([f"{a}\t{a['help']}" a for a in valid_actions])
+  try:
+    if str(sys.argv[1]).strip().lower() not in valid_actions:
+      raise Exception()
+  except:
+    print(f"Invalid arguments!", "Valid actions are: ", help_msg)
     exit(0)
-  
-  command = sys.argv[1]
-  outfile = None
-  
-  match command:
-    case 'reload':  # reload annotations file
-      if len(sys.argv) == 4:
-        reload_annotations(infile=sys.argv[2], outfile=sys.argv[3])
-      else:
-        reload_annotations(infile=sys.argv[2])
-    case 'build': # build tracks from scratch
-    
-      if len(sys.argv) == 4:
-        build_annotations(infile=sys.argv[2],outfile=sys.argv[3])
-      else:
-        build_annotations(infile=sys.argv[2])
-      
-    case 'draw':
-      if len(sys.argv) != 4:
-        print("must specify draw [input_file] [path_to_images]")
-      else:
-        draw_annotations(sys.argv[2],sys.argv[3])
-      
-    case 'rotate':
-      if len(sys.argv) < 5:
-        print("must specify rotate [input_file] [path_to_images] [degrees]")
-      else:
-        rotate_annotations(sys.argv[2], sys.argv[3], int(sys.argv[4]), sys.argv[5])
 
-    case 'draw-rot':
-      
-      if len(sys.argv) != 5:
-        print("must specify draw-rot [input_file] [path_to_images] [degrees]")
-      else:
-        draw_rotated_annotations(sys.argv[2], sys.argv[3], int(sys.argv[4]))
-    
-    case 'reflect':
-      if len(sys.argv) < 5:
-        print("must specify reflect [input_file] [path_to_images] [axis=(x,y)]")
-      else:
-        reflect_annotations(sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5])
-    
-    case 'draw-refl':
-      if len(sys.argv) != 5:
-        print("must specify draw-refl [input_file] [path_to_images] [axis = (x,y)]")
-      else:
-        draw_reflected_annotations(sys.argv[2], sys.argv[3], sys.argv[4])
-      
-    case other:
-      print("unknown")
+  to_call = valid_actions.get(str(sys.argv[1]).strip().lower(), exit)
+  result = to_call(sys.argv[2:])
+  return result
 
 if __name__ == '__main__':
   main()

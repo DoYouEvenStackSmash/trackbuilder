@@ -13,7 +13,7 @@ class ObjectTrack:
     self.color = rand_color()
     self.last_frame = -1
     self.class_id = class_id
-
+  
   def add_new_step(self, yb, frame_id):
     ''' 
     Add a new bounding box to the object track
@@ -25,7 +25,6 @@ class ObjectTrack:
     self.last_frame = frame_id
     yb.parent_track = self.track_id
     self.path.append(yb)
-
   
   def update_track_vector(self, pt):
     '''
@@ -56,7 +55,6 @@ class ObjectTrack:
     if len(self.path) == 1:
       return (lx,ly)
     return (lx + (self.r * np.cos(self.theta)), ly + (self.r * np.sin(self.theta)))
-  
   
   def is_alive(self, fc, expiration):
     '''
@@ -106,7 +104,6 @@ class ObjectTrack:
     for ybx in self.path:
       ybx.rotate_quad(dir_flag)
   
-  
   def link_path(self):
     '''
     Postprocessing step to construct a linked list
@@ -114,15 +111,13 @@ class ObjectTrack:
     for i in range(len(self.path)-1):
       self.path[i].next = self.path[i + 1]
       self.path[i+1].prev = self.path[i]
-
-    
+  
   def get_step_count(self):
     '''
     Accessor for checking length of the track
     '''
     return len(self.path)
   
-      
   def get_loco_track(self,fdict,steps):
     '''
     Get complete track in loco format
@@ -156,5 +151,4 @@ class ObjectTrack:
               "trackmap_index" : -1,
               "vid_id":0, 
               "track_color": self.color})
-    
-      
+  
