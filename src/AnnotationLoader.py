@@ -134,3 +134,5 @@ class AnnotationLoader:
       yoloboxes.append(YoloBox(cbx[0],cbx[1:], valid_file))
 
     return yoloboxes
+
+

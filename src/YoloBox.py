@@ -12,7 +12,7 @@ class YoloBox:
     img_file  : identifier for mapping bounding box to source image
     confidence: optional confidence value from inference
   '''
-  def __init__(self,class_id, bbox, img_filename, center_xy = None, confidence = None):
+  def __init__(self,class_id, bbox, img_filename, center_xy = None, confidence = None, distance = None):
     self.class_id = class_id
     self.bbox = bbox
     self.img_filename = img_filename
@@ -21,6 +21,7 @@ class YoloBox:
     self.next = None
     self.prev = None
     self.center_xy = center_xy
+    self.distance = distance
 
 
   def get_corner_coords(self):

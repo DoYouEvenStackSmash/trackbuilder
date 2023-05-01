@@ -12,7 +12,7 @@ import sys
 import os
 import json
 
-CUTOFF = 1
+CUTOFF = 5
 # loader
 LOAD_CUTOFF = 1
 
