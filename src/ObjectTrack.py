@@ -123,7 +123,7 @@ class ObjectTrack:
     return len(self.path)
   
       
-  def get_loco_track(self,fdict,steps):
+  def get_loco_track(self,fdict = None,steps = []):
     '''
     Get complete track in loco format
     template = {
@@ -143,7 +143,11 @@ class ObjectTrack:
                 }
     '''
     for yb in self.path:
-      fid = fdict[f'{yb.img_filename[:-3]}png']
+      fid = None
+      # if fdict != None:
+      #   fid = fdict[f'{yb.img_filename[:-3]}png']
+      # else:
+      fid = yb.img_filename
       steps.append({
               "id":-1, 
               "image_id": fid, 
