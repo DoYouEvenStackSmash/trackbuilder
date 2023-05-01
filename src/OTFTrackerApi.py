@@ -1,5 +1,7 @@
 
+import numpy as np
 
+from YoloBox import YoloBox
 '''
 Input format
   [
@@ -29,30 +31,30 @@ Input format
 '''
 
 class StreamingAnnotations:
-  def register_new_yolo_annotation(s, valid_frame_name="frame_", w_factor=None, h_factor=None):
-  '''
-  Load yolo format bounding box from a list of annotations in YOLO format
-    class center_x  center_y  width height
-  Wrapper for register_annotation
-  Returns a list of YoloBoxes
-  '''
-  scale = lambda x,y,w,h: (x * w, y * h) # lambda for scaling an x,y coord
-  yoloboxes = []
+  def register_new_yolo_annotations(s, valid_frame_name="frame_", w_factor=None, h_factor=None):
+    '''
+    Load yolo format bounding box from a list of annotations in YOLO format
+      class center_x  center_y  width height
+    Wrapper for register_annotation
+    Returns a list of YoloBoxes
+    '''
+    scale = lambda x,y,w,h: (x * w, y * h) # lambda for scaling an x,y coord
+    yoloboxes = []
 
-  for i in range(len(s)):
-    if len(s[i]) < 10:
-      continue
-    b = s[i].split()
-    cbx = [float(val) for val in b]
-    cbx[1] = cbx[1] * w_factor
-    cbx[2] = cbx[2] * h_factor
-    cbx[3] = cbx[3] * w_factor
-    cbx[4] = cbx[4] * h_factor
+    for i in range(len(s)):
+      if len(s[i]) < 10:
+        continue
+      b = s[i].split()
+      cbx = [float(val) for val in b]
+      cbx[1] = cbx[1] * w_factor
+      cbx[2] = cbx[2] * h_factor
+      cbx[3] = cbx[3] * w_factor
+      cbx[4] = cbx[4] * h_factor
 
-    yb = register_annotation(cbx[0], cbx[1:], f"{valid_frame_name}{len(yoloboxes)}")
-    yoloboxes.append(yb)
+      yb = StreamingAnnotations.register_annotation(cbx[0], cbx[1:], f"{valid_frame_name}{len(yoloboxes)}")
+      yoloboxes.append(yb)
 
-  return yoloboxes
+    return yoloboxes
 
   def register_new_LOCO_annotations(annotation_arr):
     ''' 
@@ -62,10 +64,9 @@ class StreamingAnnotations:
     '''
     scale = lambda x,y,w,h: (x * w, y * h) # lambda for scaling an x,y coord
     yoloboxes = []
-
+    cbx = [0] * 5
     for anno in annotation_arr:
       valid_frame_name = anno["image_id"]
-      b = s[i].split()
       cbx[0] = anno["category_id"]
       bbox = anno["bbox"]
       cbx[1] = bbox[0]
@@ -73,7 +74,7 @@ class StreamingAnnotations:
       cbx[3] = bbox[2]
       cbx[4] = bbox[3]
       
-      yb = register_annotation(cbx[0], cbx[1:], valid_frame_name)
+      yb = StreamingAnnotations.register_annotation(cbx[0], cbx[1:], valid_frame_name)
       yoloboxes.append(yb)
     
     return yoloboxes

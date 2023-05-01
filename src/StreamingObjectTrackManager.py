@@ -65,6 +65,17 @@ class ObjectTrackManager:
     Add a yolobox array of registered annotations to object track manager as a new layer
     '''
     self.layers.append(yolobox_arr)
+    print(self.layers)
+  
+  def get_layer(self, layer_idx = 0):
+    '''
+    Accessor for a single layer by index
+    returns a layer of yoloboxes
+    '''
+    if len(self.layers) == 0:
+      print()
+      return []
+    return self.layers[layer_idx]
   
 
   def add_new_element_to_layer(self, yolobox):
