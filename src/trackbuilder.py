@@ -195,6 +195,11 @@ def rotate_annotations(infile, sys_path, degree, outfile = None):
   Generates new images
   Writes a LOCO file referencing those new images
   '''
+  try:
+    degree = float(degree)
+  except:
+    print(f"Invalid value for degree: {degree}!")
+    return
   s = al.load_annotations_from_json_file(infile)
   o = import_tracks(s,sys_path)
   freeze_tracks(o)
@@ -218,6 +223,11 @@ def draw_rotated_annotations(infile, sys_path, degree):
   Generates new temp images
   Does not return
   '''
+  try:
+    degree = float(degree)
+  except:
+    print(f"Invalid value for degree: {degree}!")
+    return
   s = al.load_annotations_from_json_file(infile)
   o = import_tracks(s,sys_path)
   freeze_tracks(o)
@@ -284,55 +294,56 @@ def main():
       print(f"\t{i}")
     exit(0)
   
-  command = sys.argv[1]
+  command = str(sys.argv[1]).strip().lower()
   outfile = None
   
-  match command:
-    case 'reload':  # reload annotations file
-      if len(sys.argv) == 4:
-        reload_annotations(infile=sys.argv[2], outfile=sys.argv[3])
-      else:
-        reload_annotations(infile=sys.argv[2])
-    case 'build': # build tracks from scratch
-    
-      if len(sys.argv) == 4:
-        build_annotations(infile=sys.argv[2],outfile=sys.argv[3])
-      else:
-        build_annotations(infile=sys.argv[2])
+  if command == 'reload':  # reload annotations file
+    if len(sys.argv) == 4:
+      reload_annotations(infile=sys.argv[2], outfile=sys.argv[3])
+    else:
+      reload_annotations(infile=sys.argv[2])
+  
+  elif command == 'build': # build tracks from scratch
+    if len(sys.argv) == 4:
+      build_annotations(infile=sys.argv[2],outfile=sys.argv[3])
+    else:
+      build_annotations(infile=sys.argv[2])
       
-    case 'draw':
-      if len(sys.argv) != 4:
-        print("must specify draw [input_file] [path_to_images]")
-      else:
-        draw_annotations(sys.argv[2],sys.argv[3])
+  elif command == 'draw':
+    if len(sys.argv) != 4:
+      print("must specify draw [input_file] [path_to_images]")
+    else:
+      draw_annotations(sys.argv[2],sys.argv[3])
       
-    case 'rotate':
-      if len(sys.argv) < 5:
-        print("must specify rotate [input_file] [path_to_images] [degrees]")
-      else:
-        rotate_annotations(sys.argv[2], sys.argv[3], int(sys.argv[4]), sys.argv[5])
+  elif command == 'rotate':
+    if len(sys.argv) < 5:
+      print("must specify rotate [input_file] [path_to_images] [degrees]")
+    else:
+      rotate_annotations(sys.argv[2], sys.argv[3], int(sys.argv[4]), sys.argv[5])
 
-    case 'draw-rot':
-      
-      if len(sys.argv) != 5:
-        print("must specify draw-rot [input_file] [path_to_images] [degrees]")
-      else:
-        draw_rotated_annotations(sys.argv[2], sys.argv[3], int(sys.argv[4]))
+  elif command == 'draw-rot': 
+    if len(sys.argv) != 5:
+      print("must specify draw-rot [input_file] [path_to_images] [degrees]")
+    else:
+      draw_rotated_annotations(sys.argv[2], sys.argv[3], int(sys.argv[4]))
     
-    case 'reflect':
-      if len(sys.argv) < 5:
-        print("must specify reflect [input_file] [path_to_images] [axis=(x,y)]")
-      else:
-        reflect_annotations(sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5])
+  elif command == 'reflect':
+    if len(sys.argv) < 5:
+      print("must specify reflect [input_file] [path_to_images] [axis=(x,y)]")
+    else:
+      reflect_annotations(sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5])
     
-    case 'draw-refl':
-      if len(sys.argv) != 5:
-        print("must specify draw-refl [input_file] [path_to_images] [axis = (x,y)]")
-      else:
-        draw_reflected_annotations(sys.argv[2], sys.argv[3], sys.argv[4])
+  elif command == 'draw-refl':
+    if len(sys.argv) != 5:
+      print("must specify draw-refl [input_file] [path_to_images] [axis = (x,y)]")
+    else:
+      draw_reflected_annotations(sys.argv[2], sys.argv[3], sys.argv[4])
       
-    case other:
-      print("unknown")
+  else:
+    print("unknown command")
+    print(f"usage:")
+    for i in h:
+      print(f"\t{i}")
 
 if __name__ == '__main__':
   main()
